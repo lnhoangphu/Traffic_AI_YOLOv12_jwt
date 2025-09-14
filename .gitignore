@@ -24,3 +24,5 @@ kaggle.json
 # Env
 .env
 .env.local
+
+./datasets_src/

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
-from detect import infer  # Sửa lại import
+from .detect import infer  # Use relative import
 import os
 app = FastAPI(title="Traffic AI Service")
 
