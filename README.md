@@ -49,7 +49,9 @@ Cách dùng nhanh (Windows, PowerShell):
 
 6) Chạy AI service:
 - uvicorn src.ai_service.main:app --reload
+- Mở http://localhost:8000/ để xem API info
 - Mở http://localhost:8000/docs để test POST /detect
+- Healthcheck: http://localhost:8000/healthz
 
 Ghi chú:
 - Nhiều dataset Kaggle KHÔNG ở YOLO format. Bạn hãy tải xong và gửi lại list thư mục + ví dụ file nhãn để leader viết adapters trong scripts/prepare_datasets.py.
