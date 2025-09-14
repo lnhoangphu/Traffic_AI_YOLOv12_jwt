@@ -1,8 +1,12 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
-from detect import infer  # Sửa lại import
+from .detect import infer  # Sửa lại import để dùng relative import
 import os
-app = FastAPI(title="Traffic AI Service")
+app = FastAPI(
+    title="Traffic AI Service",
+    description="API for detecting objects in traffic images using YOLOv8",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,6 +24,19 @@ def _auth(authorization: str | None):
         if not authorization or not authorization.startswith("Bearer "):
             raise HTTPException(status_code=401, detail="Missing or invalid token")
         # TODO: verify JWT signature (HS256/RS256) tùy backend của bạn
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to Traffic AI Detection API",
+        "endpoints": {
+            "/healthz": "GET - Health check endpoint",
+            "/detect": "POST - Upload an image for object detection",
+            "/docs": "Interactive API documentation",
+            "/redoc": "ReDoc API documentation"
+        },
+        "version": "1.0.0"
+    }
 
 @app.get("/healthz")
 def healthz():
