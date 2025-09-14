@@ -3,3 +3,9 @@ fastapi
 uvicorn
 pillow
 python-multipart
+# Data prep & weather augmentation
+kaggle==1.6.17
+albumentations==1.4.18
+opencv-python==4.12.0.88
+pyyaml==6.0.2
+pandas==2.2.3

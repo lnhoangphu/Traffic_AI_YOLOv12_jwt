@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Data and model artifacts
+data/traffic/images/
+data/traffic/labels/
+data/traffic/metadata.csv
+data/traffic/splits.json
+datasets_src/
+runs/
+outputs/
+checkpoints/
+weights/
+
+# Kaggle
+.kaggle/
+kaggle.json
+
+# Env
+.env
+.env.local

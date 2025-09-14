@@ -1,0 +1,17 @@
+# Danh sách lớp mục tiêu cho đề tài
+names:
+  0: traffic_sign
+  1: motorcycle
+  2: pedestrian
+  3: car
+  4: truck
+  5: bicycle
+  6: pothole
+  7: bus
+
+weather:
+  - clear
+  - rain
+  - fog
+  - snow
+  - other

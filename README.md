@@ -1,98 +1,61 @@
-# Traffic AI Detection API
+# Traffic AI YOLO (Baseline)
 
-API nhận diện đối tượng giao thông sử dụng YOLOv8 / Traffic object detection API using YOLOv8
+Mục tiêu:
+- Phát hiện/phân loại: traffic_sign, motorcycle, pedestrian, car, truck, bicycle, pothole, bus.
+- Hợp nhất nhiều dataset Kaggle về YOLO format thống nhất.
+- Xử lý mất cân bằng dữ liệu và tích hợp yếu tố thời tiết (clear/rain/fog/snow).
+- Cung cấp AI service (FastAPI) để frontend/back-end gọi.
 
-## Yêu cầu hệ thống / System Requirements
-
-- Python 3.8 hoặc phiên bản mới hơn / Python 3.8 or newer
-- pip (Python package installer)
-
-## Cài đặt / Installation
-
-1. Clone dự án / Clone the project:
-```bash
-git clone <repository-url>
-cd Traffic_AI_YOLOv12_jwt
+Cấu trúc:
+```
+├─ src/
+│  └─ ai_service/
+│     ├─ main.py          # FastAPI server
+│     └─ detect.py        # Wrapper YOLO
+├─ scripts/
+│  ├─ download_kaggle.ps1 # Tải dataset (Windows PowerShell)
+│  ├─ download_kaggle.sh  # Tải dataset (Linux/Mac)
+│  ├─ prepare_datasets.py # Hợp nhất & chuẩn hóa YOLO (skeleton, cần adapters)
+│  └─ augment_weather.py  # Tạo ảnh thời tiết synthetic (rain/fog/snow)
+├─ config/
+│  └─ taxonomy.yaml       # Danh sách lớp mục tiêu + weather
+├─ data/
+│  └─ traffic/
+│     └─ data.yaml        # Ultralytics data config (train/val/test + names)
+├─ training/
+│  └─ train.ps1           # Train baseline YOLO (Windows)
+├─ .env.example           # Biến môi trường cho AI service
+├─ requirements.txt       # Thư viện Python
+└─ .gitignore
 ```
 
-2. Tạo môi trường ảo / Create virtual environment:
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
+Cách dùng nhanh (Windows, PowerShell):
+1) Tạo venv và cài dependency:
+- python -m venv venv
+- .\venv\Scripts\activate
+- pip install -r requirements.txt
 
-# Linux/macOS
-python3 -m venv venv
-source venv/bin/activate
-```
+2) Đặt file kaggle.json ở thư mục gốc repo (cùng cấp README.md).
+3) Tải datasets từ Kaggle:
+- .\scripts\download_kaggle.ps1
+  (Lưu tại datasets_src/..., tự unzip)
 
-3. Cài đặt các thư viện / Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+4) Chuẩn bị dataset hợp nhất (skeleton – cần bạn gửi cấu trúc để leader viết adapters):
+- python .\scripts\prepare_datasets.py
+  (Hiện tại script sẽ tạo khung thư mục và báo TODO cho từng dataset)
 
-## Chạy ứng dụng / Run the application
+5) Train baseline YOLO:
+- .\training\train.ps1
 
-1. Khởi động server / Start the server:
-```bash
-uvicorn main:app --reload
-```
+6) Chạy AI service:
+- uvicorn src.ai_service.main:app --reload
+- Mở http://localhost:8000/docs để test POST /detect
 
-Server sẽ chạy tại / The server will run at: `http://127.0.0.1:8000`
+Ghi chú:
+- Nhiều dataset Kaggle KHÔNG ở YOLO format. Bạn hãy tải xong và gửi lại list thư mục + ví dụ file nhãn để leader viết adapters trong scripts/prepare_datasets.py.
+- Khi chưa có dữ liệu unified, bạn vẫn có thể chạy AI API để test inference với model YOLO pre-trained.
 
-## Các API Endpoints
-
-### 1. Root Endpoint (GET `/`)
-- Hiển thị thông tin về API và các endpoints có sẵn
-- Shows API information and available endpoints
-
-### 2. Object Detection (POST `/detect`)
-- Upload ảnh để nhận diện đối tượng
-- Upload an image for object detection
-
-#### Cách sử dụng / How to use:
-```python
-import requests
-
-# Gửi ảnh để nhận diện / Send image for detection
-with open('your_image.jpg', 'rb') as f:
-    files = {'file': f}
-    response = requests.post('http://127.0.0.1:8000/detect', files=files)
-
-print(response.json())
-```
-
-### Documentation
-
-- Swagger UI: `http://127.0.0.1:8000/docs`
-- ReDoc: `http://127.0.0.1:8000/redoc`
-
-## Cấu trúc dự án / Project Structure
-
-```
-Traffic_AI_YOLOv12_jwt/
-├── main.py             # FastAPI application
-├── detect.py          # YOLOv8 detection logic
-├── requirements.txt   # Project dependencies
-├── yolov8n.pt        # YOLOv8 model (downloaded automatically)
-└── README.md         # This file
-```
-
-## Kết quả trả về / Response Format
-
-```json
-{
-    "objects": [
-        {
-            "label": "car",
-            "confidence": 0.95,
-            "box": [100, 200, 300, 400]
-        },
-        // ... other detected objects
-    ]
-}
-```
-
-- `label`: Tên đối tượng được nhận diện / Name of detected object
-- `confidence`: Độ tin cậy (0-1) / Confidence score (0-1)
-- `box`: Tọa độ khung chứa [x1, y1, x2, y2] / Bounding box coordinates [x1, y1, x2, y2]
+Bảo mật/Hiệu suất:
+- Bật REQUIRE_AUTH trong .env để yêu cầu JWT (khi tích hợp backend).
+- Resize ảnh phía client trước khi upload để tăng tốc.
+- CORS whitelist domain FE ở biến AI_ALLOWED_ORIGINS.
