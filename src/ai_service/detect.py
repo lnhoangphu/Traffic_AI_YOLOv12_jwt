@@ -3,7 +3,7 @@ from PIL import Image
 import io
 import os
 
-MODEL_PATH = os.getenv("YOLO_WEIGHTS", "yolov8n.pt")
+MODEL_PATH = os.getenv("YOLO_WEIGHTS", "yolov12n.pt")
 
 # Load model once
 model = YOLO(MODEL_PATH)

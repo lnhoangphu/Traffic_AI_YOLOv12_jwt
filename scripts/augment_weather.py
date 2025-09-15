@@ -13,7 +13,8 @@ import shutil
 import cv2
 import albumentations as A
 
-ROOT = Path("data/traffic")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+ROOT = REPO_ROOT / "data" / "traffic"
 IN_DIR = ROOT / "images" / "train"
 LBL_IN = ROOT / "labels" / "train"
 OUT_DIR = ROOT / "images" / "train_weather"

@@ -3,6 +3,9 @@ fastapi
 uvicorn
 pillow
 python-multipart
+requests
+matplotlib
+seaborn
 # Data prep & weather augmentation
 kaggle==1.6.17
 albumentations==1.4.18

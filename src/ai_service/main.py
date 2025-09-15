@@ -5,7 +5,7 @@ import os
 app = FastAPI(title="Traffic AI Service")
 app = FastAPI(
     title="Traffic AI Service",
-    description="API phát hiện đối tượng giao thông sử dụng YOLOv8",
+    description="API phát hiện đối tượng giao thông sử dụng YOLOv12",
     version="1.0.0"
 )
 app.add_middleware(

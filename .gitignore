@@ -26,3 +26,9 @@ kaggle.json
 .env.local
 
 ./datasets_src/
+
+./datasets/
+./datasets/intersection_flow/
+./datasets/object_detection_35/
+./datasets/road_issues/
+./datasets/vn_traffic_sign/

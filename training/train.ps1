@@ -1,4 +1,4 @@
-# Train baseline YOLOv8n trên dữ liệu đã hợp nhất
+# Train baseline YOLOv12n trên dữ liệu đã hợp nhất
 # Yêu cầu: data/traffic/data.yaml đã đúng và có ảnh/nhãn trong images/labels train/val/test
 $ErrorActionPreference = "Stop"
 
@@ -8,4 +8,4 @@ if (-not (Test-Path $DATA_CFG)) {
 }
 
 # epochs/imgsz có thể chỉnh
-yolo task=detect mode=train model=yolov8n.pt data=$DATA_CFG epochs=100 imgsz=640 patience=20
+yolo task=detect mode=train model=yolov12n.pt data=$DATA_CFG epochs=100 imgsz=640 patience=20
