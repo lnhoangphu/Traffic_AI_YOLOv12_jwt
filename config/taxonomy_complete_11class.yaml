@@ -1,0 +1,101 @@
+class_descriptions:
+  0: Pedestrian - Người đi bộ trên đường
+  1: Bicycle - Xe đạp các loại
+  2: Motorcycle - Xe máy, xe 3 bánh
+  3: Car - Xe hơi, xe con
+  4: Bus - Xe buýt, xe khách
+  5: Truck - Xe tải các loại
+  6: Train - Xe lửa, tàu hỏa
+  7: Traffic Light - Đèn giao thông
+  8: Traffic Sign - Biển báo giao thông
+  9: Pothole - Ổ gà, hư hỏng mặt đường
+  10: Infrastructure - Hạ tầng giao thông (barriers, etc.)
+classes:
+- pedestrian
+- bicycle
+- motorcycle
+- car
+- bus
+- truck
+- train
+- traffic_light
+- traffic_sign
+- pothole
+- infrastructure
+created_date: '2025-09-20'
+dataset_info:
+  intersection_flow_5k:
+    description: Traffic intersection surveillance data
+    estimated_annotations: 400000
+    total_classes: 8
+    traffic_classes_used: 6
+  object_detection_35:
+    description: VisionGuard dataset with 35 object classes for blind assistance
+    total_annotations: 23043
+    total_classes: 35
+    traffic_annotations: 7503
+    traffic_classes_used: 11
+  road_issues:
+    description: Road infrastructure problems dataset
+    total_classes: 7
+    total_images: 9660
+    traffic_classes_used: 2
+  vn_traffic_sign:
+    description: Vietnamese traffic signs dataset
+    estimated_annotations: 2800
+    total_classes: 29
+    traffic_classes_used: 1
+description: Optimized 11-class taxonomy for comprehensive traffic object detection
+mapping:
+  intersection_flow_5k:
+    0: 0
+    1: 1
+    2: 3
+    3: 3
+    4: 5
+    5: 4
+    6: 2
+    7: 2
+  object_detection_35:
+    0: 0
+    10: 4
+    12: 1
+    14: 5
+    15: 2
+    20: 7
+    23: 8
+    24: 3
+    25: 10
+    26: 9
+    28: 6
+  road_issues:
+    0: 8
+    4: 9
+  vn_traffic_sign:
+    all_classes: 8
+num_classes: 11
+project_name: Traffic AI YOLOv12 - Complete 11-Class Taxonomy
+training_strategy:
+  augmentation_focus:
+  - 2
+  - 6
+  - 7
+  - 9
+  - 10
+  class_weights: inverse_frequency
+  data_balance:
+    high_priority:
+    - 0
+    - 3
+    - 7
+    - 8
+    low_priority:
+    - 6
+    - 9
+    - 10
+    medium_priority:
+    - 1
+    - 2
+    - 4
+    - 5
+version: '2.0'

@@ -1,34 +1,178 @@
-# Python
+# =============================================================================
+# Traffic AI YOLOv12 - GitIgnore Configuration
+# =============================================================================
+
+# Python artifacts
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.venv/
-venv/
+*.egg-info/
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 
-# Data and model artifacts
-data/traffic/images/
-data/traffic/labels/
-data/traffic/metadata.csv
-data/traffic/splits.json
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# =============================================================================
+# Dataset Files (Too large for GitHub)
+# =============================================================================
+
+# Source datasets (downloaded from Kaggle)
 datasets_src/
+!datasets_src/.gitkeep
+experiments/
+!experiments/.gitkeep
+# Processed datasets
+datasets/
+data/
+!data/.gitkeep
+
+# Specific large dataset folders
+intersection_flow_5k/
+object_detection_35/
+road_issues/
+vn_traffic_sign/
+traffic_ai_final_11class/
+
+# =============================================================================
+# Model and Training Artifacts
+# =============================================================================
+
+# Model weights and checkpoints
+*.pt
+*.pth
+*.weights
+*.onnx
+yolo*.pt
+weights/
+checkpoints/
+models/weights/
+
+# Training outputs
 runs/
 outputs/
-checkpoints/
-weights/
+results/
+logs/
+tensorboard/
+wandb/
 
-# Kaggle
+# =============================================================================
+# Kaggle and API Keys
+# =============================================================================
+
+# Kaggle credentials
 .kaggle/
 kaggle.json
+*.json
 
-# Env
+# API keys and secrets
 .env
 .env.local
+.env.production
+.env.staging
+secrets/
+credentials/
 
-./datasets_src/
+# =============================================================================
+# IDE and OS Files
+# =============================================================================
 
-./datasets/
-./datasets/intersection_flow/
-./datasets/object_detection_35/
-./datasets/road_issues/
-./datasets/vn_traffic_sign/
+# VSCode
+.vscode/
+.vs/
+
+# PyCharm
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Windows
+*.lnk
+
+# =============================================================================
+# Temporary and Cache Files
+# =============================================================================
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.swp
+*.swo
+*~
+
+# Cache directories
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =============================================================================
+# Project Specific Excludes
+# =============================================================================
+
+# Large image/video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+*.wmv
+
+# Large archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Generated files that can be recreated
+conversion_stats.yaml
+merge_statistics.yaml
+dataset_stats.yaml
+dataset_info.yaml
+
+# =============================================================================
+# Keep Essential Files (Force Include)
+# =============================================================================
+
+# Keep important config files
+!config/
+!scripts/
+!requirements.txt
+!README.md
+!.gitignore
+
+# Keep small sample datasets for testing (if any)
+!samples/
+!examples/

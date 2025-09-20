@@ -1,14 +1,51 @@
-ultralytics
-fastapi
-uvicorn
-pillow
-python-multipart
-requests
-matplotlib
-seaborn
-# Data prep & weather augmentation
-kaggle==1.6.17
-albumentations==1.4.18
-opencv-python==4.12.0.88
-pyyaml==6.0.2
-pandas==2.2.3
+# Core AI/ML libraries - GPU optimized for RTX 3050Ti
+ultralytics>=8.0.0   # YOLOv12 model training and inference
+torch>=2.0.0         # PyTorch deep learning framework
+torchvision>=0.15.0  # Computer vision utilities for PyTorch
+numpy>=1.21.0        # Numerical computing
+
+# Install PyTorch with CUDA 11.8 support for RTX 3050Ti:
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+
+# Web API framework
+fastapi>=0.100.0     # Modern web API framework
+uvicorn>=0.22.0      # ASGI server for FastAPI
+python-multipart>=0.0.6  # Handle file uploads in FastAPI
+
+# Image processing
+pillow>=9.0.0        # Image processing library
+opencv-python==4.12.0.88  # Computer vision operations
+
+# Data manipulation and analysis
+pandas==2.2.3        # Data manipulation and analysis
+pyyaml==6.0.2        # YAML file parsing for configs
+
+# Visualization and plotting
+matplotlib>=3.5.0    # Basic plotting and visualization
+seaborn>=0.11.0      # Statistical data visualization
+plotly>=5.0.0        # Interactive plotting
+
+# Dataset tools
+kaggle==1.6.17       # Download datasets from Kaggle
+albumentations==1.4.18  # Advanced image augmentation
+
+# Progress tracking and UI
+tqdm>=4.64.0         # Progress bars for loops
+tabulate>=0.9.0      # Pretty-print tabular data
+
+# Utilities
+requests>=2.28.0     # HTTP requests
+
+# GPU monitoring and optimization (optional)
+gpustat>=1.1.0       # GPU utilization monitoring
+psutil>=5.9.0        # System and process utilities
+
+# Development and testing (optional)
+pytest>=7.0.0        # Testing framework
+black>=22.0.0        # Code formatting
+isort>=5.10.0        # Import sorting
+flake8>=5.0.0        # Code linting
+
+# Export formats for model deployment
+onnx>=1.14.0         # ONNX model format
+onnxruntime-gpu>=1.15.0  # ONNX runtime with GPU support
