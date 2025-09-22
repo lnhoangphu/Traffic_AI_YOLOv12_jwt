@@ -1,0 +1,101 @@
+class_descriptions:
+  0: Vehicle - Các phương tiện giao thông khác (cars, vehicles chung không thuộc các
+    loại riêng biệt)
+  1: Bus - Xe buýt, xe khách các loại
+  2: Bicycle - Xe đạp tất cả các loại
+  3: Person - Tất cả người (pedestrian, passenger, người trên xe, người đi bộ)
+  4: Engine - Xe 2 bánh có động cơ (motorcycle, scooter, xe máy)
+  5: Truck - Xe tải các loại (truck, van, xe chở hàng)
+  6: Tricycle - Xe 3 bánh (tricycle, xe lam)
+  7: Obstacle - Vật cản, chướng ngại vật trên đường
+  8: Pothole - Ổ gà, hư hỏng mặt đường
+  9: Traffic Light - Đèn giao thông
+  10: Traffic Sign - Tất cả biển báo giao thông (29 loại VN + các biển khác)
+classes:
+- Vehicle
+- Bus
+- Bicycle
+- Person
+- Engine
+- Truck
+- Tricycle
+- Obstacle
+- Pothole
+- Traffic Light
+- Traffic Sign
+created_date: '2025-09-20'
+dataset_info:
+  intersection_flow_5k:
+    description: Traffic intersection surveillance data
+    estimated_annotations: 400000
+    total_classes: 8
+    traffic_classes_used: 6
+  object_detection_35:
+    description: VisionGuard dataset with 35 object classes for blind assistance
+    total_annotations: 23043
+    total_classes: 35
+    traffic_annotations: 7503
+    traffic_classes_used: 11
+  road_issues:
+    description: Road infrastructure problems dataset
+    total_classes: 7
+    total_images: 9660
+    traffic_classes_used: 2
+  vn_traffic_sign:
+    description: Vietnamese traffic signs dataset
+    estimated_annotations: 2800
+    total_classes: 29
+    traffic_classes_used: 1
+description: 'User-optimized 11-class taxonomy: Vehicle, Bus, Bicycle, Person, Engine,
+  Truck, Tricycle, Obstacle, Pothole, Traffic Light, Traffic Sign'
+mapping:
+  intersection_flow_5k:
+    0: 3
+    1: 2
+    2: 0
+    3: 0
+    4: 5
+    5: 1
+    6: 4
+    7: 6
+  object_detection_35:
+    0: 3
+    10: 1
+    12: 2
+    14: 5
+    15: 4
+    20: 9
+    23: 10
+    24: 0
+    25: 7
+    26: 8
+    28: 0
+  road_issues:
+    0: 10
+    4: 8
+  vn_traffic_sign:
+    all_classes: 10
+num_classes: 11
+project_name: Traffic AI YOLOv12 - User-Specified 11-Class Taxonomy
+training_strategy:
+  augmentation_focus:
+  - 6
+  - 7
+  - 8
+  class_weights: inverse_frequency
+  data_balance:
+    high_priority:
+    - 0
+    - 3
+    - 9
+    - 10
+    low_priority:
+    - 6
+    - 7
+    - 8
+    medium_priority:
+    - 1
+    - 2
+    - 4
+    - 5
+version: '3.0'

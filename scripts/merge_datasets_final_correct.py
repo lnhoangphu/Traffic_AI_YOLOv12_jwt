@@ -89,7 +89,13 @@ class FinalCorrectMerger:
         if len(parts) != 5:
             return None
         
-        old_class_id = int(parts[0])
+        # Handle float class IDs by converting to int
+        try:
+            old_class_id = int(float(parts[0]))  # Convert float to int
+        except ValueError:
+            self.stats['skipped_annotations'] += 1
+            return None
+            
         bbox_info = parts[1:5]
         
         self.stats['input_annotations'] += 1
@@ -103,7 +109,7 @@ class FinalCorrectMerger:
         
         # Handle special case for vn_traffic_sign (all classes -> traffic_sign)
         if dataset_name == 'vn_traffic_sign':
-            new_class_id = 8  # traffic_sign
+            new_class_id = 10  # Traffic Sign in user's taxonomy
         elif old_class_id in dataset_mapping:
             new_class_id = dataset_mapping[old_class_id]
         else:

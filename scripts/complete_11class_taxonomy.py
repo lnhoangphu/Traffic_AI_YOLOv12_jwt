@@ -13,69 +13,61 @@ import yaml
 from pathlib import Path
 
 def create_complete_taxonomy():
-    """Tạo taxonomy hoàn chỉnh cho tất cả 4 datasets"""
+    """Tạo taxonomy hoàn chỉnh theo đề xuất của user - 11 classes tối ưu"""
     
-    # 11 classes chuẩn
+    # 11 classes theo đề xuất của user
     classes = [
-        "pedestrian",      # 0 - Người đi bộ
-        "bicycle",         # 1 - Xe đạp  
-        "motorcycle",      # 2 - Xe máy
-        "car",             # 3 - Xe hơi
-        "bus",             # 4 - Xe bus
-        "truck",           # 5 - Xe tải
-        "train",           # 6 - Xe lửa
-        "traffic_light",   # 7 - Đèn giao thông
-        "traffic_sign",    # 8 - Biển báo giao thông
-        "pothole",         # 9 - Ổ gà đường
-        "infrastructure"   # 10 - Hạ tầng giao thông
+        "Vehicle",         # 0 - Các phương tiện giao thông khác (car, vehicle chung)
+        "Bus",             # 1 - Xe buýt, xe khách
+        "Bicycle",         # 2 - Xe đạp các loại
+        "Person",          # 3 - Người (đi bộ, ngồi trên xe, tất cả người)
+        "Engine",          # 4 - Xe 2 bánh có động cơ (motorcycle, scooter)
+        "Truck",           # 5 - Xe tải các loại
+        "Tricycle",        # 6 - Xe 3 bánh
+        "Obstacle",        # 7 - Vật cản, chướng ngại vật
+        "Pothole",         # 8 - Ổ gà, hư hỏng mặt đường
+        "Traffic Light",   # 9 - Đèn giao thông
+        "Traffic Sign"     # 10 - Biển báo giao thông (29 biển VN + các biển khác)
     ]
     
-    # Mapping cho từng dataset
+    # Mapping cho từng dataset theo đề xuất của user
     mapping = {
-        # Object Detection 35 Classes (VisionGuard dataset)
-        'object_detection_35': {
-            0: 0,   # Person -> pedestrian
-            12: 1,  # Bicycle -> bicycle
-            15: 2,  # Motorcycles -> motorcycle  
-            24: 3,  # Car -> car
-            10: 4,  # Bus -> bus
-            14: 5,  # Truck -> truck
-            28: 6,  # Train -> train
-            20: 7,  # Traffic Light -> traffic_light
-            23: 8,  # Stop Sign -> traffic_sign
-            26: 9,  # Path Holes -> pothole
-            25: 10, # Barriers -> infrastructure
-            # Other classes are ignored (không map)
-        },
-        
-        # Intersection Flow 5K (cần phân tích thêm)
+        # Intersection Flow 5K - Mapping chính xác theo classes hiện tại
         'intersection_flow_5k': {
-            # Dựa trên analysis trước đây:
-            # pedestrian, bicycle, vehicle, car, truck, bus, engine, tricycle
-            0: 0,  # pedestrian -> pedestrian
-            1: 1,  # bicycle -> bicycle
-            2: 3,  # vehicle -> car (generic vehicle)
-            3: 3,  # car -> car
-            4: 5,  # truck -> truck
-            5: 4,  # bus -> bus
-            6: 2,  # engine -> motorcycle (engine/motorbike)
-            7: 2,  # tricycle -> motorcycle (3-wheel vehicle)
+            0: 3,  # pedestrian -> Person
+            1: 2,  # bicycle -> Bicycle
+            2: 0,  # vehicle -> Vehicle
+            3: 0,  # car -> Vehicle (gộp vào Vehicle)
+            4: 5,  # truck -> Truck
+            5: 1,  # bus -> Bus
+            6: 4,  # engine -> Engine
+            7: 6,  # tricycle -> Tricycle
         },
         
-        # VN Traffic Sign Dataset
+        # Object Detection 35 - Traffic-related classes mapping
+        'object_detection_35': {
+            0: 3,   # Person -> Person
+            10: 1,  # Bus -> Bus
+            12: 2,  # Bicycle -> Bicycle
+            14: 5,  # Truck -> Truck
+            15: 4,  # Motorcycles -> Engine
+            20: 9,  # Traffic Light -> Traffic Light
+            23: 10, # Stop Sign -> Traffic Sign
+            24: 0,  # Car -> Vehicle
+            25: 7,  # Barriers -> Obstacle
+            26: 8,  # Path Holes -> Pothole
+            28: 0,  # Train -> Vehicle (hoặc có thể tách riêng nếu cần)
+        },
+        
+        # VN Traffic Sign Dataset - Tất cả signs -> Traffic Sign
         'vn_traffic_sign': {
-            # Tất cả traffic signs map to traffic_sign class
-            # Sẽ cần loop qua tất cả 29 classes và map về class 8
-            # Format sẽ được update sau khi phân tích chi tiết
-            'all_classes': 8  # All traffic signs -> traffic_sign
+            'all_classes': 10  # All 29 traffic signs -> Traffic Sign
         },
         
-        # Road Issues Dataset  
+        # Road Issues Dataset
         'road_issues': {
-            # Dựa trên class mapping từ convert_road_issues.py:
-            4: 9,  # pothole -> pothole
-            0: 8,  # broken_road_sign -> traffic_sign
-            # Other road issues không có trong 11-class taxonomy
+            0: 10,  # broken_road_sign -> Traffic Sign
+            4: 8,   # pothole -> Pothole
         }
     }
     
@@ -110,26 +102,26 @@ def create_complete_taxonomy():
     
     # Complete taxonomy config
     taxonomy_config = {
-        'project_name': 'Traffic AI YOLOv12 - Complete 11-Class Taxonomy',
-        'version': '2.0',
-        'description': 'Optimized 11-class taxonomy for comprehensive traffic object detection',
+        'project_name': 'Traffic AI YOLOv12 - User-Specified 11-Class Taxonomy',
+        'version': '3.0',
+        'description': 'User-optimized 11-class taxonomy: Vehicle, Bus, Bicycle, Person, Engine, Truck, Tricycle, Obstacle, Pothole, Traffic Light, Traffic Sign',
         'created_date': '2025-09-20',
         
         'classes': classes,
         'num_classes': len(classes),
         
         'class_descriptions': {
-            0: 'Pedestrian - Người đi bộ trên đường',
-            1: 'Bicycle - Xe đạp các loại',
-            2: 'Motorcycle - Xe máy, xe 3 bánh',  
-            3: 'Car - Xe hơi, xe con',
-            4: 'Bus - Xe buýt, xe khách',
-            5: 'Truck - Xe tải các loại',
-            6: 'Train - Xe lửa, tàu hỏa',
-            7: 'Traffic Light - Đèn giao thông',
-            8: 'Traffic Sign - Biển báo giao thông',
-            9: 'Pothole - Ổ gà, hư hỏng mặt đường',
-            10: 'Infrastructure - Hạ tầng giao thông (barriers, etc.)'
+            0: 'Vehicle - Các phương tiện giao thông khác (cars, vehicles chung không thuộc các loại riêng biệt)',
+            1: 'Bus - Xe buýt, xe khách các loại',
+            2: 'Bicycle - Xe đạp tất cả các loại',
+            3: 'Person - Tất cả người (pedestrian, passenger, người trên xe, người đi bộ)',
+            4: 'Engine - Xe 2 bánh có động cơ (motorcycle, scooter, xe máy)',
+            5: 'Truck - Xe tải các loại (truck, van, xe chở hàng)',
+            6: 'Tricycle - Xe 3 bánh (tricycle, xe lam)',
+            7: 'Obstacle - Vật cản, chướng ngại vật trên đường',
+            8: 'Pothole - Ổ gà, hư hỏng mặt đường',
+            9: 'Traffic Light - Đèn giao thông',
+            10: 'Traffic Sign - Tất cả biển báo giao thông (29 loại VN + các biển khác)'
         },
         
         'mapping': mapping,
@@ -137,11 +129,11 @@ def create_complete_taxonomy():
         
         'training_strategy': {
             'data_balance': {
-                'high_priority': [0, 3, 7, 8],  # pedestrian, car, traffic_light, traffic_sign
-                'medium_priority': [1, 2, 4, 5], # bicycle, motorcycle, bus, truck
-                'low_priority': [6, 9, 10]       # train, pothole, infrastructure
+                'high_priority': [0, 3, 9, 10],  # Vehicle, Person, Traffic Light, Traffic Sign
+                'medium_priority': [1, 2, 4, 5], # Bus, Bicycle, Engine, Truck
+                'low_priority': [6, 7, 8]        # Tricycle, Obstacle, Pothole
             },
-            'augmentation_focus': [2, 6, 7, 9, 10],  # Classes with fewer samples
+            'augmentation_focus': [6, 7, 8],     # Classes with fewer samples
             'class_weights': 'inverse_frequency'
         }
     }
