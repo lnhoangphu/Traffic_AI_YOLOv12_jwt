@@ -9,16 +9,12 @@ import numpy as np
 
 # Sử dụng model đã train thay vì model gốc
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-TRAINED_MODEL = PROJECT_ROOT / "runs" / "balanced" / "balanced_training_20250922_1352252" / "weights" / "best.pt"
+TRAINED_MODEL = PROJECT_ROOT / "runs" / "balanced" / "balanced_training_20250922_135225" / "weights" / "best.pt"
 
 # Cấu hình từ .env
 AUTO_USE_TRAINED_MODEL = os.getenv("AUTO_USE_TRAINED_MODEL", "true").lower() == "true"
 CONFIDENCE_THRESHOLD = float(os.getenv("MODEL_CONFIDENCE_THRESHOLD", "0.25"))
 IOU_THRESHOLD = float(os.getenv("MODEL_IOU_THRESHOLD", "0.45"))
-# Per-class thresholds and suppression rule (configurable via env)
-PERSON_MIN_CONF = float(os.getenv("PERSON_MIN_CONF", "0.75"))
-VEHICLE_MIN_CONF = float(os.getenv("VEHICLE_MIN_CONF", "0.20"))
-SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE = float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.6"))
 
 # Logic chọn model
 if AUTO_USE_TRAINED_MODEL and TRAINED_MODEL.exists():
@@ -52,12 +48,8 @@ def infer(image_bytes: bytes):
     )
     
     r = results[0]
-    dets = _boxes_to_detections(r)
-    dets = _postprocess_classwise_thresholds_and_overlap(dets, r)
-    return dets
-
-def _boxes_to_detections(r):
     dets = []
+    
     if r.boxes is not None:
         for b in r.boxes:
             cls = int(b.cls)
@@ -67,68 +59,16 @@ def _boxes_to_detections(r):
                 "confidence": float(b.conf),
                 "box_xyxy": [float(x) for x in b.xyxy[0].tolist()],
                 "box_center": [
-                    float((b.xyxy[0][0] + b.xyxy[0][2]) / 2),
-                    float((b.xyxy[0][1] + b.xyxy[0][3]) / 2)
+                    float((b.xyxy[0][0] + b.xyxy[0][2]) / 2),  # x center
+                    float((b.xyxy[0][1] + b.xyxy[0][3]) / 2)   # y center
                 ],
                 "box_size": [
-                    float(b.xyxy[0][2] - b.xyxy[0][0]),
-                    float(b.xyxy[0][3] - b.xyxy[0][1])
+                    float(b.xyxy[0][2] - b.xyxy[0][0]),  # width
+                    float(b.xyxy[0][3] - b.xyxy[0][1])   # height
                 ]
             })
+    
     return dets
-
-def _iou_xyxy(a, b):
-    ax1, ay1, ax2, ay2 = a
-    bx1, by1, bx2, by2 = b
-    inter_x1 = max(ax1, bx1)
-    inter_y1 = max(ay1, by1)
-    inter_x2 = min(ax2, bx2)
-    inter_y2 = min(ay2, by2)
-    inter_w = max(0.0, inter_x2 - inter_x1)
-    inter_h = max(0.0, inter_y2 - inter_y1)
-    inter = inter_w * inter_h
-    area_a = max(0.0, (ax2 - ax1)) * max(0.0, (ay2 - ay1))
-    area_b = max(0.0, (bx2 - bx1)) * max(0.0, (by2 - by1))
-    union = area_a + area_b - inter
-    return inter / union if union > 0 else 0.0
-
-def _postprocess_classwise_thresholds_and_overlap(dets, r):
-    # Apply per-class thresholds
-    filtered = []
-    for d in dets:
-        label = d["label"].lower()
-        conf = d["confidence"]
-        if label == "person":
-            if conf < PERSON_MIN_CONF:
-                continue
-        elif label in ("vehicle", "car"):
-            if conf < VEHICLE_MIN_CONF:
-                continue
-        else:
-            if conf < CONFIDENCE_THRESHOLD:
-                continue
-        filtered.append(d)
-
-    # Suppress person if heavily overlapping a vehicle
-    if SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE > 0:
-        vehicles = [d for d in filtered if d["label"].lower() in ("vehicle", "car")]
-        kept = []
-        for d in filtered:
-            if d["label"].lower() == "person":
-                suppress = False
-                for v in vehicles:
-                    iou = _iou_xyxy(d["box_xyxy"], v["box_xyxy"])
-                    # Suppress if IoU high and vehicle is at least above its minimum confidence
-                    if iou >= SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE and v["confidence"] >= VEHICLE_MIN_CONF:
-                        suppress = True
-                        break
-                if not suppress:
-                    kept.append(d)
-            else:
-                kept.append(d)
-        filtered = kept
-
-    return filtered
 
 def _predict_frame_detections(frame_bgr: np.ndarray):
     """Run detection on a single BGR frame and return list of detections and plotted frame (RGB)."""
@@ -141,8 +81,16 @@ def _predict_frame_detections(frame_bgr: np.ndarray):
         verbose=False
     )
     r = results[0]
-    detections = _boxes_to_detections(r)
-    detections = _postprocess_classwise_thresholds_and_overlap(detections, r)
+    detections = []
+    if r.boxes is not None:
+        for b in r.boxes:
+            cls = int(b.cls)
+            detections.append({
+                "label": r.names[cls],
+                "class_id": cls,
+                "confidence": float(b.conf),
+                "box_xyxy": [float(x) for x in b.xyxy[0].tolist()]
+            })
     # r.plot() returns annotated image in RGB
     annotated_rgb = r.plot() if hasattr(r, "plot") else frame_rgb
     return detections, annotated_rgb

@@ -115,10 +115,7 @@ async def model_info():
             "thresholds": {
                 "confidence": float(os.getenv("MODEL_CONFIDENCE_THRESHOLD", "0.25")),
                 "iou": float(os.getenv("MODEL_IOU_THRESHOLD", "0.45")),
-                "high_confidence": HIGH_CONFIDENCE_THRESHOLD,
-                "person_min_conf": float(os.getenv("PERSON_MIN_CONF", "0.75")),
-                "vehicle_min_conf": float(os.getenv("VEHICLE_MIN_CONF", "0.20")),
-                "suppress_person_if_iou_with_vehicle": float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.6"))
+                "high_confidence": HIGH_CONFIDENCE_THRESHOLD
             },
             "training_info": {
                 "epochs": 100,

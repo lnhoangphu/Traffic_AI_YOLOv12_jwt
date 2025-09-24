@@ -16,9 +16,9 @@ AUTO_USE_TRAINED_MODEL = os.getenv("AUTO_USE_TRAINED_MODEL", "true").lower() == 
 CONFIDENCE_THRESHOLD = float(os.getenv("MODEL_CONFIDENCE_THRESHOLD", "0.25"))
 IOU_THRESHOLD = float(os.getenv("MODEL_IOU_THRESHOLD", "0.45"))
 # Per-class thresholds and suppression rule (configurable via env)
-PERSON_MIN_CONF = float(os.getenv("PERSON_MIN_CONF", "0.75"))
-VEHICLE_MIN_CONF = float(os.getenv("VEHICLE_MIN_CONF", "0.20"))
-SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE = float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.6"))
+PERSON_MIN_CONF = float(os.getenv("PERSON_MIN_CONF", "0.65"))
+VEHICLE_MIN_CONF = float(os.getenv("VEHICLE_MIN_CONF", str(CONFIDENCE_THRESHOLD)))
+SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE = float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.5"))
 
 # Logic chọn model
 if AUTO_USE_TRAINED_MODEL and TRAINED_MODEL.exists():
@@ -118,8 +118,7 @@ def _postprocess_classwise_thresholds_and_overlap(dets, r):
                 suppress = False
                 for v in vehicles:
                     iou = _iou_xyxy(d["box_xyxy"], v["box_xyxy"])
-                    # Suppress if IoU high and vehicle is at least above its minimum confidence
-                    if iou >= SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE and v["confidence"] >= VEHICLE_MIN_CONF:
+                    if iou >= SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE and v["confidence"] >= (d["confidence"] - 0.1):
                         suppress = True
                         break
                 if not suppress:

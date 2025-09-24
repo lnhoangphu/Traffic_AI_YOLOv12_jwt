@@ -16,6 +16,10 @@ import yaml
 import signal
 import atexit
 
+# Fix encoding for Windows
+if sys.platform.startswith('win'):
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+
 class ImbalancedTrainer:
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
@@ -25,9 +29,9 @@ class ImbalancedTrainer:
         self.runs_dir = self.project_root / "runs" / "imbalanced"
         self.model_weights = self.project_root / "yolo12n.pt"
         
-        # Training parameters
+        # Training parameters (optimized for RTX 3050 Ti 4GB)
         self.epochs = 100
-        self.batch_size = 16
+        self.batch_size = 4  # Reduced from 16 to fit in 4GB VRAM
         self.img_size = 640
         self.patience = 20
         self.device = "0"
@@ -192,10 +196,13 @@ class ImbalancedTrainer:
             f'name=imbalanced_training_{datetime.now().strftime("%Y%m%d_%H%M%S")}',
             f'device={self.device}',
             'save=True',
-            'save_period=5',  # Save every 5 epochs
+            'save_period=10',  # Save every 10 epochs instead of 5 to save disk space
             'plots=True',
             'val=True',
-            'verbose=True'
+            'verbose=False',  # Reduce console output
+            'amp=True',  # Enable Automatic Mixed Precision to save VRAM
+            'cache=False',  # Disable cache to save RAM
+            'workers=4'  # Reduce workers to save RAM
         ]
         
         # Add model or resume checkpoint
@@ -209,6 +216,10 @@ class ImbalancedTrainer:
         
         self.logger.info(f"💻 Command: {' '.join(cmd)}")
         
+        # Set environment variables for proper encoding
+        env = os.environ.copy()
+        env['PYTHONIOENCODING'] = 'utf-8'
+        
         # Start training
         try:
             # Run with real-time output
@@ -218,22 +229,29 @@ class ImbalancedTrainer:
                 stderr=subprocess.STDOUT,
                 text=True,
                 bufsize=1,
-                universal_newlines=True
+                universal_newlines=True,
+                encoding='utf-8',
+                errors='replace',
+                env=env
             )
             
             # Log output in real-time
             for line in process.stdout:
-                line = line.strip()
-                if line:
-                    self.logger.info(line)
-                    
-                    # Parse and highlight important metrics
-                    if 'mAP50' in line or 'mAP50-95' in line:
-                        self.logger.info(f"📊 METRICS: {line}")
-                    elif 'loss' in line.lower():
-                        self.logger.info(f"📉 LOSS: {line}")
-                    elif any(cls in line for cls in ['Vehicle', 'Person', 'Bus', 'Bicycle']):
-                        self.logger.info(f"📈 CLASS METRICS: {line}")
+                try:
+                    line = line.strip()
+                    if line:
+                        self.logger.info(line)
+                        
+                        # Parse and highlight important metrics
+                        if 'mAP50' in line or 'mAP50-95' in line:
+                            self.logger.info(f"📊 METRICS: {line}")
+                        elif 'loss' in line.lower():
+                            self.logger.info(f"📉 LOSS: {line}")
+                        elif any(cls in line for cls in ['Vehicle', 'Person', 'Bus', 'Bicycle']):
+                            self.logger.info(f"📈 CLASS METRICS: {line}")
+                except UnicodeDecodeError as e:
+                    self.logger.warning(f"⚠️ Encoding error in output: {e}")
+                    continue
             
             process.wait()
             

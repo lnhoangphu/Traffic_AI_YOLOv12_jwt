@@ -118,8 +118,7 @@ def _postprocess_classwise_thresholds_and_overlap(dets, r):
                 suppress = False
                 for v in vehicles:
                     iou = _iou_xyxy(d["box_xyxy"], v["box_xyxy"])
-                    # Suppress if IoU high and vehicle is at least above its minimum confidence
-                    if iou >= SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE and v["confidence"] >= VEHICLE_MIN_CONF:
+                    if iou >= SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE and v["confidence"] >= (d["confidence"] - 0.1):
                         suppress = True
                         break
                 if not suppress:
