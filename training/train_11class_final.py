@@ -111,6 +111,19 @@ def train_yolov12_11class(
     print("🚀 YOLOv12 11-CLASS TRAFFIC DETECTION TRAINING")
     print("="*80)
     
+    # Auto-detect GPU/CPU
+    import torch
+    if device == '0' and not torch.cuda.is_available():
+        print("\n⚠️  GPU not available, switching to CPU mode")
+        device = 'cpu'
+        print(f"💡 WARNING: Training 300 epochs trên CPU có thể mất ~30-40 giờ!")
+        print(f"💡 Để dùng GPU, cài PyTorch với CUDA:")
+        print(f"   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118")
+        user_input = input("\n⚠️  Tiếp tục training trên CPU? (y/n): ").strip().lower()
+        if user_input != 'y':
+            print("❌ Cancelled training.")
+            return None, None
+    
     # Load data.yaml để lấy dataset path
     with open(data_yaml, 'r', encoding='utf-8') as f:
         data_config = yaml.safe_load(f)
@@ -126,6 +139,8 @@ def train_yolov12_11class(
     print(f"🔄 Epochs: {epochs}")
     print(f"⏰ Patience: {patience}")
     print(f"💻 Device: {device}")
+    if device == 'cpu':
+        print(f"⚠️  CPU mode: Training sẽ MẤT RẤT NHIỀU THỜI GIAN!")
     
     # Tính class weights
     class_weights = None
@@ -242,34 +257,26 @@ def train_yolov12_11class(
 
 if __name__ == "__main__":
     # Cấu hình training
-    DATA_YAML = r"d:\DH_K47\nam_tu\HK1\Do_an_2\Traffic_AI_YOLOv12_jwt\datasets\traffic_ai_11class_final\data.yaml"
+    DATA_YAML = r"d:\DH_K47\nam_tu\HK1\Do_an_2\Traffic_AI_YOLOv12_jwt\datasets\traffic_ai_balanced_11class_processed\data.yaml"
     
     # Kiểm tra file tồn tại
     if not os.path.exists(DATA_YAML):
         print(f"❌ Không tìm thấy file: {DATA_YAML}")
-        
-        # Thử dùng dataset cũ
-        DATA_YAML_OLD = r"d:\DH_K47\nam_tu\HK1\Do_an_2\Traffic_AI_YOLOv12_jwt\datasets\traffic_ai_balanced_11class_processed\data.yaml"
-        if os.path.exists(DATA_YAML_OLD):
-            print(f"✅ Sử dụng dataset: {DATA_YAML_OLD}")
-            DATA_YAML = DATA_YAML_OLD
-        else:
-            print("❌ Không tìm thấy dataset nào!")
-            sys.exit(1)
+        sys.exit(1)
     
     # Training parameters
     CONFIG = {
         'data_yaml': DATA_YAML,
-        'model_size': 'n',           # n = nano (nhẹ nhất, nhanh nhất)
-        'epochs': 300,               # 300 epochs
+        'model_size': 'n',           # n = nano (YOLOv12n)
+        'epochs': 300,               # 300 epochs (full training)
         'batch_size': 16,            # Adjust theo GPU RAM
         'img_size': 640,             # Standard YOLO size
         'patience': 50,              # Early stopping
         'device': '0',               # GPU 0 (hoặc 'cpu')
         'project': 'runs/train_11class_final',
-        'name': 'yolov12_11class_weighted',
+        'name': 'yolov12n_11class_weighted',
         'use_class_weights': True,   # Sử dụng class weights
-        'pretrained': True           # Pretrained weights
+        'pretrained': True           # Pretrained YOLOv12n weights
     }
     
     print("\n🔧 Training Configuration:")

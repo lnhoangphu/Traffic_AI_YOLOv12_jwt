@@ -23,7 +23,10 @@
 │  📊 Analyze Dataset:                                                           │
 │     python scripts\analyze_11class_dataset.py                                  │
 │                                                                                 │
-│  🏋️ Train Model:                                                               │
+│  ⚡ Quick Train (30 epochs, ~30-45 min):                                       │
+│     python training\quick_train_yolov12.py                                     │
+│                                                                                 │
+│  🏋️ Full Train (300 epochs, ~6-8 hours):                                      │
 │     python training\train_11class_final.py                                     │
 │                                                                                 │
 │  📈 Evaluate:                                                                  │
@@ -56,18 +59,24 @@
 
 ┌─ 🎯 TRAINING CONFIG ───────────────────────────────────────────────────────────┐
 │                                                                                 │
-│  Model:       YOLOv8n / YOLOv12n                                               │
-│  Epochs:      300                                                              │
-│  Batch:       16                                                               │
-│  Image size:  640                                                              │
-│  LR:          0.001 → 0.00001                                                  │
-│  Optimizer:   AdamW                                                            │
-│  Patience:    50 (early stopping)                                              │
+│  Model:       YOLOv12n (nano)                                                  │
+│                                                                                 │
+│  QUICK TRAINING (Test):                                                        │
+│    Epochs:      30                                                             │
+│    Time:        ~30-45 minutes                                                 │
+│    Purpose:     Verify pipeline, check initial results                         │
+│                                                                                 │
+│  FULL TRAINING (Production):                                                   │
+│    Epochs:      300                                                            │
+│    Time:        ~6-8 hours                                                     │
+│    Batch:       16                                                             │
+│    Image size:  640                                                            │
+│    LR:          0.001 → 0.00001                                                │
+│    Optimizer:   AdamW                                                          │
+│    Patience:    50 (early stopping)                                            │
 │                                                                                 │
 │  Class weights: AUTO (inverse frequency)                                       │
 │  Augmentation: Mosaic, Mixup, Copy-paste, HSV, Rotation, Scale                │
-│                                                                                 │
-│  Time:        ~6-8 hours (RTX 3060)                                            │
 │                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 
