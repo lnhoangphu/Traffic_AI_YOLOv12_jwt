@@ -7,11 +7,11 @@ import time
 import psutil
 import torch
 from pathlib import Path
+from typing import Optional
 
 import cv2
 import numpy as np
 import tempfile
-from typing import Optional
 
 # Load environment variables với default values
 API_TITLE = os.getenv("API_TITLE", "Traffic AI Service - YOLOv12")
@@ -45,7 +45,7 @@ WARMUP_ITERATIONS = int(os.getenv("WARMUP_ITERATIONS", "3"))
 SHOW_TRAINING_METRICS = os.getenv("SHOW_TRAINING_METRICS", "true").lower() == "true"
 ENABLE_GPU_METRICS = os.getenv("ENABLE_GPU_METRICS", "true").lower() == "true"
 
-def _auth(authorization: str | None):
+def _auth(authorization: Optional[str]):
     """Xác thực người dùng"""
     if REQUIRE_AUTH:
         if not authorization or not authorization.startswith("Bearer "):
@@ -94,19 +94,24 @@ def healthz():
 async def model_info():
     """Thông tin chi tiết về model"""
     try:
-        # Lấy training metrics từ .env nếu có
+        # Lấy training metrics từ model mới train
         performance_data = {}
         if SHOW_TRAINING_METRICS:
+            # Metrics từ YOLOv12n Quick Test (30 epochs)
             performance_data = {
-                "mAP@0.5": f"{os.getenv('TRAINING_MAP50', '62.8')}%",
-                "mAP@0.5:0.95": f"{os.getenv('TRAINING_MAP50_95', '44.9')}%",
-                "precision": f"{os.getenv('TRAINING_PRECISION', '79.6')}%",
-                "recall": f"{os.getenv('TRAINING_RECALL', '55.7')}%"
+                "mAP@0.5": "59.50%",
+                "mAP@0.5:0.95": "44.58%",
+                "precision": "65.19%",
+                "recall": "50.60%",
+                "inference_speed": "6.9ms",
+                "training_epochs": 30,
+                "training_type": "Quick Test (GPU RTX 3050 Ti)"
             }
         
         return {
             "model_type": "YOLOv12n",
             "training_dataset": TRAINING_DATASET_NAME,
+            "model_version": "Quick Test - 30 epochs (Nov 2025)",
             "classes": list(model.names.values()) if hasattr(model, 'names') else [],
             "num_classes": len(model.names) if hasattr(model, 'names') else 0,
             "input_size": "640x640",
@@ -121,10 +126,12 @@ async def model_info():
                 "suppress_person_if_iou_with_vehicle": float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.6"))
             },
             "training_info": {
-                "epochs": 100,
-                "batch_size": 4,
+                "epochs": 30,
+                "batch_size": 16,
                 "optimizer": "AdamW",
-                "device": "CUDA (RTX 3050 Ti)"
+                "device": "CUDA (RTX 3050 Ti)",
+                "class_weights": "Applied (inverse frequency)",
+                "augmentation": "Medium (quick training)"
             }
         }
     except Exception as e:
@@ -230,7 +237,7 @@ async def video_detect(
     file: UploadFile = File(...),
     sample_every: int = 1,
     max_frames: Optional[int] = 300,
-    authorization: str | None = Header(None)
+    authorization: Optional[str] = Header(None)
 ):
     """
     Phát hiện đối tượng theo từng frame trong video và trả về JSON.
@@ -256,7 +263,8 @@ async def video_detect(
                 "content_type": file.content_type
             },
             "model": {
-                "name": "YOLOv12n Balanced",
+                "name": "YOLOv12n Quick Test (30 epochs)",
+                "mAP@50": "59.5%",
                 "conf": float(os.getenv("MODEL_CONFIDENCE_THRESHOLD", "0.25")),
                 "iou": float(os.getenv("MODEL_IOU_THRESHOLD", "0.45"))
             },
@@ -272,7 +280,7 @@ async def video_stream(
     sample_every: int = 1,
     max_frames: Optional[int] = None,
     output_fps: Optional[float] = None,
-    authorization: str | None = Header(None)
+    authorization: Optional[str] = Header(None)
 ):
     """
     Trả về video MP4 đã được vẽ bounding boxes.
@@ -323,7 +331,7 @@ async def video_stream(
         raise HTTPException(status_code=500, detail=f"Lỗi tạo video annotate: {str(e)}")
 
 @app.post("/detect")
-async def detect(file: UploadFile = File(...), authorization: str | None = Header(None)):
+async def detect(file: UploadFile = File(...), authorization: Optional[str] = Header(None)):
     """
     Phát hiện đối tượng giao thông trong ảnh
     
@@ -378,7 +386,7 @@ async def detect(file: UploadFile = File(...), authorization: str | None = Heade
             },
             "inference": {
                 "time_ms": round(inference_time, 2),
-                "model": "YOLOv12n Balanced"
+                "model": "YOLOv12n Quick Test (30 epochs, mAP@50=59.5%)"
             },
             "results": {
                 "total_objects": len(detections),

@@ -6,10 +6,16 @@ from pathlib import Path
 import tempfile
 import cv2
 import numpy as np
+from typing import Optional
 
 # Sử dụng model đã train thay vì model gốc
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-TRAINED_MODEL = PROJECT_ROOT / "runs" / "balanced" / "balanced_training_20250922_1352252" / "weights" / "best.pt"
+
+# Model mới train (YOLOv12n Quick Test - 30 epochs)
+TRAINED_MODEL_QUICK = PROJECT_ROOT / "runs" / "quick_train_11class" / "yolov12n_quick_test" / "weights" / "best.pt"
+
+# Model cũ (fallback)
+TRAINED_MODEL_OLD = PROJECT_ROOT / "runs" / "balanced" / "balanced_training_20250922_1352252" / "weights" / "best.pt"
 
 # Cấu hình từ .env
 AUTO_USE_TRAINED_MODEL = os.getenv("AUTO_USE_TRAINED_MODEL", "true").lower() == "true"
@@ -20,13 +26,21 @@ PERSON_MIN_CONF = float(os.getenv("PERSON_MIN_CONF", "0.75"))
 VEHICLE_MIN_CONF = float(os.getenv("VEHICLE_MIN_CONF", "0.20"))
 SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE = float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.6"))
 
-# Logic chọn model
-if AUTO_USE_TRAINED_MODEL and TRAINED_MODEL.exists():
-    MODEL_PATH = str(TRAINED_MODEL)
-    print(f"🎯 Sử dụng model đã train: {MODEL_PATH}")
+# Logic chọn model (ưu tiên model mới nhất)
+if AUTO_USE_TRAINED_MODEL:
+    if TRAINED_MODEL_QUICK.exists():
+        MODEL_PATH = str(TRAINED_MODEL_QUICK)
+        print(f"🎯 Sử dụng YOLOv12n Quick Test model (30 epochs): {MODEL_PATH}")
+        print(f"📊 Performance: mAP@50=59.5%, Inference=6.9ms")
+    elif TRAINED_MODEL_OLD.exists():
+        MODEL_PATH = str(TRAINED_MODEL_OLD)
+        print(f"🎯 Sử dụng model balanced cũ: {MODEL_PATH}")
+    else:
+        MODEL_PATH = os.getenv("YOLO_WEIGHTS", "yolo12n.pt")
+        print(f"⚠️ Không tìm thấy trained model, dùng pretrained: {MODEL_PATH}")
 else:
     MODEL_PATH = os.getenv("YOLO_WEIGHTS", "yolo12n.pt")
-    print(f"⚠️ Dùng model gốc: {MODEL_PATH}")
+    print(f"⚠️ Dùng model gốc (AUTO_USE_TRAINED_MODEL=false): {MODEL_PATH}")
 
 # Load model once
 model = YOLO(MODEL_PATH)
@@ -150,7 +164,7 @@ def _predict_frame_detections(frame_bgr: np.ndarray):
 def analyze_video_to_json(
     video_bytes: bytes,
     sample_every: int = 1,
-    max_frames: int | None = 300,
+    max_frames: Optional[int] = 300,
 ):
     """
     Analyze a video and return per-frame detections as JSON-friendly data.
@@ -218,8 +232,8 @@ def save_annotated_video(
     video_bytes: bytes,
     output_path: str,
     sample_every: int = 1,
-    max_frames: int | None = None,
-    output_fps: float | None = None,
+    max_frames: Optional[int] = None,
+    output_fps: Optional[float] = None,
 ):
     """
     Save an annotated MP4 video to `output_path`.
