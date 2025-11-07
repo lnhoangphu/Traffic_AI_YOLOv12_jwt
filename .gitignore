@@ -36,6 +36,7 @@ venv.bak/
 # =============================================================================
 
 # Source datasets (downloaded from Kaggle)
+Traffic-Object/.
 datasets_src/
 !datasets_src/.gitkeep
 experiments/
