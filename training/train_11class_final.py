@@ -136,14 +136,16 @@ def train_yolov12_11class(
         output_dir.mkdir(parents=True, exist_ok=True)
         create_training_config(output_dir, class_weights)
     
-    # Load model
-    model_name = f'yolov8{model_size}.pt' if pretrained else f'yolov8{model_size}.yaml'
+    # Load model - YOLOv12
+    model_name = f'yolov12{model_size}.pt' if pretrained else f'yolov12{model_size}.yaml'
     print(f"\n📥 Loading model: {model_name}")
     
     try:
         model = YOLO(model_name)
-    except:
-        print(f"⚠️  YOLOv12 không có sẵn, sử dụng YOLOv8 thay thế")
+        print(f"✅ Loaded YOLOv12{model_size} successfully!")
+    except Exception as e:
+        print(f"⚠️  YOLOv12 không tìm thấy: {e}")
+        print(f"⚠️  Fallback to YOLOv8...")
         model = YOLO(f'yolov8{model_size}.pt')
     
     # Training arguments
