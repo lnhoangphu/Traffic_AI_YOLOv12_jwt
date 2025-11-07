@@ -1,0 +1,168 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                YOLOv12 11-CLASS TRAFFIC DETECTION - QUICK REFERENCE             ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+┌─ 📋 11 CLASSES ────────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  0: Vehicle        ⭐ Xe hơi, sedan, van                                        │
+│  1: Bus               Xe buýt, xe khách                                        │
+│  2: Bicycle           Xe đạp                                                   │
+│  3: Person         ⭐ Người (pedestrian, passenger)                             │
+│  4: Engine            Xe máy, scooter                                          │
+│  5: Truck             Xe tải                                                   │
+│  6: Tricycle          Xe 3 bánh                                                │
+│  7: Obstacle          Vật cản, chướng ngại vật                                 │
+│  8: Pothole           Ổ gà, hư hỏng mặt đường                                  │
+│  9: Traffic Light  ⭐ Đèn giao thông                                            │
+│ 10: Traffic Sign   ⭐ Biển báo giao thông                                       │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 🚀 COMMANDS ──────────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  📊 Analyze Dataset:                                                           │
+│     python scripts\analyze_11class_dataset.py                                  │
+│                                                                                 │
+│  🏋️ Train Model:                                                               │
+│     python training\train_11class_final.py                                     │
+│                                                                                 │
+│  📈 Evaluate:                                                                  │
+│     python training\evaluate_11class.py                                        │
+│                                                                                 │
+│  🎯 All-in-One:                                                                │
+│     python run_11class_pipeline.py                                             │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 📊 DATASET ───────────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  Path: datasets/traffic_ai_balanced_11class_processed/                         │
+│                                                                                 │
+│  Total:   4,807 images                                                         │
+│  Objects: 178,437 annotations                                                  │
+│                                                                                 │
+│  Split:                                                                        │
+│    Train: 3,364 (70%)                                                          │
+│    Val:     961 (20%)                                                          │
+│    Test:    482 (10%)                                                          │
+│                                                                                 │
+│  Format: YOLO (txt labels)                                                     │
+│                                                                                 │
+│  ⚠️  Imbalanced:                                                               │
+│    - Vehicle (50%) + Tricycle (27%) + Person (16%) = 93%                      │
+│    - 8 classes còn lại: 7%                                                     │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 🎯 TRAINING CONFIG ───────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  Model:       YOLOv8n / YOLOv12n                                               │
+│  Epochs:      300                                                              │
+│  Batch:       16                                                               │
+│  Image size:  640                                                              │
+│  LR:          0.001 → 0.00001                                                  │
+│  Optimizer:   AdamW                                                            │
+│  Patience:    50 (early stopping)                                              │
+│                                                                                 │
+│  Class weights: AUTO (inverse frequency)                                       │
+│  Augmentation: Mosaic, Mixup, Copy-paste, HSV, Rotation, Scale                │
+│                                                                                 │
+│  Time:        ~6-8 hours (RTX 3060)                                            │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 📈 TARGET METRICS ────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  Overall:                                                                      │
+│    mAP@50:     ≥ 0.60                                                          │
+│    mAP@50-95:  ≥ 0.40                                                          │
+│    Precision:  ≥ 0.70                                                          │
+│    Recall:     ≥ 0.60                                                          │
+│                                                                                 │
+│  Per-class (High priority):                                                   │
+│    Vehicle:       ≥ 0.70 ⭐                                                    │
+│    Person:        ≥ 0.60 ⭐                                                    │
+│    Traffic Light: ≥ 0.50 ⭐                                                    │
+│    Traffic Sign:  ≥ 0.50 ⭐                                                    │
+│                                                                                 │
+│  Per-class (Others):                                                           │
+│    All classes:   ≥ 0.30                                                       │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 📚 DOCUMENTATION ─────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  📄 INDEX_11CLASS.md            → Start here (navigation)                      │
+│  📄 README_11CLASS.md           → Overview                                     │
+│  📄 TRAINING_GUIDE_11CLASS.md   → Detailed guide                               │
+│  📄 CHECKLIST_11CLASS.md        → Verification checklist                       │
+│  📄 SUMMARY_11CLASS.md          → Complete summary                             │
+│  📄 QUICK_REFERENCE.txt         → This file                                    │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ ⚠️  COMMON ISSUES ────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  ❌ Class bị skip (mAP = 0)                                                    │
+│     → Check class weights, giảm confidence threshold                           │
+│                                                                                 │
+│  ❌ Class nhầm lẫn nhiều                                                       │
+│     → Review labels, tăng augmentation                                         │
+│                                                                                 │
+│  ❌ Overfitting                                                                │
+│     → Early stopping, tăng augmentation                                        │
+│                                                                                 │
+│  ❌ GPU OOM                                                                    │
+│     → Giảm batch size xuống 8                                                  │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ 🎯 INFERENCE EXAMPLE ─────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  from ultralytics import YOLO                                                  │
+│                                                                                 │
+│  # Load model                                                                  │
+│  model = YOLO('runs/.../weights/best.pt')                                      │
+│                                                                                 │
+│  # Predict                                                                     │
+│  results = model.predict(                                                      │
+│      source='test_images/',                                                    │
+│      conf=0.25,                                                                │
+│      save=True                                                                 │
+│  )                                                                             │
+│                                                                                 │
+│  # Real-time                                                                   │
+│  results = model.predict(source=0, stream=True)  # webcam                      │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ ✅ CHECKLIST ─────────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  Pre-training:                                                                 │
+│    ✅ Dataset có đúng 11 class (0-10)                                          │
+│    ✅ Không có class dư thừa                                                   │
+│    ✅ Format YOLO chuẩn                                                        │
+│    ✅ data.yaml đúng đường dẫn                                                 │
+│                                                                                 │
+│  During training:                                                              │
+│    ⏳ Loss giảm dần                                                            │
+│    ⏳ mAP tăng dần                                                             │
+│    ⏳ Val loss không tăng                                                      │
+│                                                                                 │
+│  Post-training:                                                                │
+│    ⏳ mAP@50 >= 0.60                                                           │
+│    ⏳ mAP@50-95 >= 0.40                                                        │
+│    ⏳ Confusion matrix OK                                                      │
+│    ⏳ Test trên ảnh thật OK                                                    │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                          🚀 READY TO TRAIN!                                    ║
+║                                                                                ║
+║                     python run_11class_pipeline.py                             ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+Version: 1.0
+Updated: 2025-11-07
+Status: ✅ Ready for Training
