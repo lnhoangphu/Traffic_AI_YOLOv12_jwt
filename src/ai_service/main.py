@@ -97,21 +97,20 @@ async def model_info():
         # Lấy training metrics từ model mới train
         performance_data = {}
         if SHOW_TRAINING_METRICS:
-            # Metrics từ YOLOv12n Quick Test (30 epochs)
+            # Metrics từ YOLOv12n 11-Class Weighted (300 epochs)
             performance_data = {
-                "mAP@0.5": "59.50%",
-                "mAP@0.5:0.95": "44.58%",
-                "precision": "65.19%",
-                "recall": "50.60%",
-                "inference_speed": "6.9ms",
-                "training_epochs": 30,
-                "training_type": "Quick Test (GPU RTX 3050 Ti)"
+                "mAP@0.5": float(os.getenv("TRAINING_MAP50", "54.95")),
+                "mAP@0.5:0.95": float(os.getenv("TRAINING_MAP50_95", "39.21")),
+                "precision": float(os.getenv("TRAINING_PRECISION", "70.94")),
+                "recall": float(os.getenv("TRAINING_RECALL", "52.13")),
+                "training_epochs": int(os.getenv("TRAINING_EPOCHS", "300")),
+                "training_type": "11-Class Weighted (GPU RTX 3050 Ti)"
             }
         
         return {
             "model_type": "YOLOv12n",
             "training_dataset": TRAINING_DATASET_NAME,
-            "model_version": "Quick Test - 30 epochs (Nov 2025)",
+            "model_version": os.getenv("TRAINING_MODEL_NAME", "yolov12n_11class_weighted") + " (Nov 2025)",
             "classes": list(model.names.values()) if hasattr(model, 'names') else [],
             "num_classes": len(model.names) if hasattr(model, 'names') else 0,
             "input_size": "640x640",
@@ -126,12 +125,12 @@ async def model_info():
                 "suppress_person_if_iou_with_vehicle": float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.6"))
             },
             "training_info": {
-                "epochs": 30,
-                "batch_size": 16,
+                "epochs": int(os.getenv("TRAINING_EPOCHS", "300")),
+                "batch_size": 8,
                 "optimizer": "AdamW",
                 "device": "CUDA (RTX 3050 Ti)",
                 "class_weights": "Applied (inverse frequency)",
-                "augmentation": "Medium (quick training)"
+                "augmentation": "Strong (300 epochs with class balancing)"
             }
         }
     except Exception as e:
