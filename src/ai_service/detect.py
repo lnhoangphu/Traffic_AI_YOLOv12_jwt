@@ -25,9 +25,10 @@ AUTO_USE_TRAINED_MODEL = os.getenv("AUTO_USE_TRAINED_MODEL", "true").lower() == 
 CONFIDENCE_THRESHOLD = float(os.getenv("MODEL_CONFIDENCE_THRESHOLD", "0.25"))
 IOU_THRESHOLD = float(os.getenv("MODEL_IOU_THRESHOLD", "0.45"))
 # Per-class thresholds and suppression rule (configurable via env)
-PERSON_MIN_CONF = float(os.getenv("PERSON_MIN_CONF", "0.75"))
-VEHICLE_MIN_CONF = float(os.getenv("VEHICLE_MIN_CONF", "0.20"))
-SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE = float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.6"))
+# Tăng threshold cho Person để giảm false positive, giảm cho Vehicle để bắt được nhiều hơn
+PERSON_MIN_CONF = float(os.getenv("PERSON_MIN_CONF", "0.45"))  # Giảm từ 0.75 → 0.45
+VEHICLE_MIN_CONF = float(os.getenv("VEHICLE_MIN_CONF", "0.15"))  # Giảm từ 0.20 → 0.15
+SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE = float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.3"))  # Giảm từ 0.6 → 0.3
 
 # Logic chọn model (ưu tiên model mới nhất)
 if AUTO_USE_TRAINED_MODEL:
@@ -130,17 +131,25 @@ def _postprocess_classwise_thresholds_and_overlap(dets, r):
                 continue
         filtered.append(d)
 
-    # Suppress person if heavily overlapping a vehicle
+    # Suppress person if overlapping vehicle (aggressive suppression)
+    # Ưu tiên Vehicle hơn Person khi có overlap
     if SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE > 0:
-        vehicles = [d for d in filtered if d["label"].lower() in ("vehicle", "car")]
+        vehicles = [d for d in filtered if d["label"].lower() in ("vehicle", "car", "bus", "truck", "engine", "bicycle", "tricycle")]
         kept = []
         for d in filtered:
             if d["label"].lower() == "person":
                 suppress = False
                 for v in vehicles:
                     iou = _iou_xyxy(d["box_xyxy"], v["box_xyxy"])
-                    # Suppress if IoU high and vehicle is at least above its minimum confidence
-                    if iou >= SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE and v["confidence"] >= VEHICLE_MIN_CONF:
+                    # Suppress Person nếu overlap với bất kỳ vehicle nào (IoU > 0.3)
+                    # Hoặc nếu Person box nằm gần hoàn toàn trong Vehicle box
+                    if iou >= SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE:
+                        suppress = True
+                        break
+                    # Suppress nếu Person box nhỏ và nằm trong Vehicle box lớn
+                    person_area = (d["box_xyxy"][2] - d["box_xyxy"][0]) * (d["box_xyxy"][3] - d["box_xyxy"][1])
+                    vehicle_area = (v["box_xyxy"][2] - v["box_xyxy"][0]) * (v["box_xyxy"][3] - v["box_xyxy"][1])
+                    if person_area > 0 and vehicle_area > person_area * 2 and iou > 0.2:
                         suppress = True
                         break
                 if not suppress:

@@ -11,12 +11,16 @@ import time
 
 # Load model đã train
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-MODEL_PATH = PROJECT_ROOT / "runs" / "quick_train_11class" / "yolov12n_quick_test" / "weights" / "best.pt"
+MODEL_PATH = PROJECT_ROOT / "runs" / "train_11class_final" / "yolov12n_11class_weighted" / "weights" / "best.pt"
 
 # Fallback nếu chưa có model trained
 if not MODEL_PATH.exists():
-    MODEL_PATH = PROJECT_ROOT / "yolo12n.pt"
-    print("⚠️  Chưa có model trained, dùng pretrained model")
+    MODEL_PATH = PROJECT_ROOT / "runs" / "train_balanced_final" / "yolov12n_11class_balanced" / "weights" / "best.pt"
+    if not MODEL_PATH.exists():
+        MODEL_PATH = PROJECT_ROOT / "runs" / "quick_train_11class" / "yolov12n_quick_test" / "weights" / "best.pt"
+        if not MODEL_PATH.exists():
+            MODEL_PATH = PROJECT_ROOT / "yolo12n.pt"
+            print("⚠️  Chưa có model trained, dùng pretrained model")
 
 print(f"📦 Loading model: {MODEL_PATH}")
 model = YOLO(str(MODEL_PATH))
