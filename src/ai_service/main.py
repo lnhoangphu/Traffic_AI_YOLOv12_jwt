@@ -262,8 +262,8 @@ async def video_detect(
                 "content_type": file.content_type
             },
             "model": {
-                "name": "YOLOv12n 11-Class Weighted (300 epochs)",
-                "mAP@50": "54.95%",
+                "name": "YOLOv12n Quick Test (30 epochs)",
+                "mAP@50": "59.5%",
                 "conf": float(os.getenv("MODEL_CONFIDENCE_THRESHOLD", "0.25")),
                 "iou": float(os.getenv("MODEL_IOU_THRESHOLD", "0.45"))
             },
@@ -385,7 +385,7 @@ async def detect(file: UploadFile = File(...), authorization: Optional[str] = He
             },
             "inference": {
                 "time_ms": round(inference_time, 2),
-                "model": "YOLOv12n 11-Class Weighted (300 epochs, mAP@50=54.95%)"
+                "model": "YOLOv12n Quick Test (30 epochs, mAP@50=59.5%)"
             },
             "results": {
                 "total_objects": len(detections),

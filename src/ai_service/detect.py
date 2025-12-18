@@ -11,11 +11,11 @@ from typing import Optional
 # Sử dụng model đã train thay vì model gốc
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-# Model mới nhất (11 class weighted - 300 epochs)
-TRAINED_MODEL_FINAL = PROJECT_ROOT / "runs" / "train_11class_final" / "yolov12n_11class_weighted" / "weights" / "best.pt"
-
-# Model quick test (fallback 1)
+# Model quick test (ưu tiên cho testing)
 TRAINED_MODEL_QUICK = PROJECT_ROOT / "runs" / "quick_train_11class" / "yolov12n_quick_test" / "weights" / "best.pt"
+
+# Model mới nhất (fallback 1)
+TRAINED_MODEL_FINAL = PROJECT_ROOT / "runs" / "train_11class_final" / "yolov12n_11class_weighted" / "weights" / "best.pt"
 
 # Model cũ (fallback 2)
 TRAINED_MODEL_OLD = PROJECT_ROOT / "runs" / "balanced" / "balanced_training_20250922_1352252" / "weights" / "best.pt"
@@ -30,16 +30,16 @@ PERSON_MIN_CONF = float(os.getenv("PERSON_MIN_CONF", "0.45"))  # Giảm từ 0.7
 VEHICLE_MIN_CONF = float(os.getenv("VEHICLE_MIN_CONF", "0.15"))  # Giảm từ 0.20 → 0.15
 SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE = float(os.getenv("SUPPRESS_PERSON_IF_IOU_WITH_VEHICLE", "0.3"))  # Giảm từ 0.6 → 0.3
 
-# Logic chọn model (ưu tiên model mới nhất)
+# Logic chọn model (ưu tiên quick test để testing)
 if AUTO_USE_TRAINED_MODEL:
-    if TRAINED_MODEL_FINAL.exists():
-        MODEL_PATH = str(TRAINED_MODEL_FINAL)
-        print(f"🎯 Sử dụng YOLOv12n 11-Class Weighted model (300 epochs): {MODEL_PATH}")
-        print(f"📊 Performance: mAP@50=54.95%, mAP@50-95=39.21%, Precision=70.94%, Recall=52.13%")
-    elif TRAINED_MODEL_QUICK.exists():
+    if TRAINED_MODEL_QUICK.exists():
         MODEL_PATH = str(TRAINED_MODEL_QUICK)
         print(f"🎯 Sử dụng YOLOv12n Quick Test model (30 epochs): {MODEL_PATH}")
         print(f"📊 Performance: mAP@50=59.5%, Inference=6.9ms")
+    elif TRAINED_MODEL_FINAL.exists():
+        MODEL_PATH = str(TRAINED_MODEL_FINAL)
+        print(f"🎯 Sử dụng YOLOv12n 11-Class Weighted model (300 epochs): {MODEL_PATH}")
+        print(f"📊 Performance: mAP@50=54.95%, mAP@50-95=39.21%, Precision=70.94%, Recall=52.13%")
     elif TRAINED_MODEL_OLD.exists():
         MODEL_PATH = str(TRAINED_MODEL_OLD)
         print(f"🎯 Sử dụng model balanced cũ: {MODEL_PATH}")
