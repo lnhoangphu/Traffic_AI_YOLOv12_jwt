@@ -12,10 +12,10 @@ from typing import Optional
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 # Model quick test (ưu tiên cho testing)
-TRAINED_MODEL_QUICK = PROJECT_ROOT / "runs" / "quick_train_11class" / "yolov12n_quick_test" / "weights" / "best.pt"
+TRAINED_MODEL_FINAL= PROJECT_ROOT / "runs" / "quick_train_11class" / "yolov12n_quick_test" / "weights" / "best.pt"
 
 # Model mới nhất (fallback 1)
-TRAINED_MODEL_FINAL = PROJECT_ROOT / "runs" / "train_11class_final" / "yolov12n_11class_weighted" / "weights" / "best.pt"
+TRAINED_MODEL_QUICK = PROJECT_ROOT / "runs" / "train_11class_final" / "yolov12n_11class_weighted" / "weights" / "best.pt"
 
 # Model cũ (fallback 2)
 TRAINED_MODEL_OLD = PROJECT_ROOT / "runs" / "balanced" / "balanced_training_20250922_1352252" / "weights" / "best.pt"
